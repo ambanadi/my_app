@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hello Arakan</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="Arakan Language Post">
+  <meta name="keywords" content="Arakan, Language, ArakanPost">
+  <meta name="author" content="Ambanadi">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="https://ambanadi.github.io/my_app/image/favicon.ico">
+  <link rel="stylesheet" type="text/css" href="https://ambanadi.github.io/my_app/Css/paper.css">
+  <link rel="stylesheet" type="text/css" href="https://ambanadi.github.io/my_app/Css/index.css">
+    <link rel="stylesheet" type="text/css" href="https://ambanadi.github.io/my_app/Css/login.css">
+
+</head>
+<body>
+
+<div class="header">
+  <h2>🔰ရခိုင်စာပီဆိုင်ရာ ဆောင်းပါးရေးရန်🔰</h2>
+  <hr>
+</div>
+     <div id="login-section" style="display: none;">
+        <h1>Login</h1>
+        <input type="email" id="txtEmail" placeholder="Email">
+        <input type="password" id="txtPassword" placeholder="Password">
+        <button id="btnLogin">Login</button>
+    </div>
+
+<form id="contactForm">
+<div class="row" id="protected-section">
+  <div class="leftcolumn">
+
+    <div class="card">
+      <input type="text" name="name" id="name" placeholder="Title" required>
+      <input type="submit" value="အတည်ပြုပါ">
+      <div class="paper">
+    <div class="paper-content">
+        <textarea autofocus id="post"></textarea>
+    </div>
+   </div>
+    </div>
+  </form>
+  <script src=
+"https://www.gstatic.com/firebasejs/3.7.4/firebase.js">
+    </script>
+    
+    <script>
+        let firebaseConfig = {
+// Add Firebase Configuration Code
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        let messagesRef = firebase.database()
+            .ref('language');
+        
+        document.getElementById('contactForm')
+            .addEventListener('submit', submitForm);
+
+        function submitForm(e) {
+            e.preventDefault();
+
+            // Get values
+            let name = getInputVal('name');
+            let post = getInputVal('post');
+
+            saveMessage(name, post);
+            document.getElementById('contactForm').reset();
+        }
+
+        // Function to get form values
+        function getInputVal(id) {
+            return document.getElementById(id).value;
+        }
+
+        // Save message to firebase
+        function saveMessage(name, post) {
+            let newMessageRef = messagesRef.push();
+            newMessageRef.set({
+                name: name,
+                post: post,
+            });
+        }
+    </script>
+  </div>
+  <div class="rightcolumn">
+    <div class="card">
+      <a href="i_add.html"><li>စာပီ ဆောင်းပါးရီးရန်</li></a>
+      <a href="h_add.html"><li>သမိုင်း ဆောင်းပါးရီးရန်</li></a>
+      <a href="p_add.html"><li>နိုင်ငံရီး ဆောင်းပါးရီးရန်</li></a>
+      <hr>
+      <a href="l_index.html"><li>စာပီ ဆောင်ပါးများ</li></a>
+      <a href="h_index.html"><li>သမိုင်း ဆောင်ပါးများ</li></a>
+      <a href="p_index.html"><li>နိုင်ငံရီး ဆောင်ပါးများ</li></a>
+      <hr>
+      <a href="l_edit.html"><li>စာပီ တည်းဖြတ်ရန်</li></a>
+      <a href="h_edit.html"><li>သမိုင်း တည်းဖြတ်ရန်</li></a>
+      <a href="p_edit.html"><li>နိုင်ငံရီး တည်းဖြတ်ရန်</li></a>
+      <button id="btnLogout">Logout</button>
+
+
+    </div>
+  </div>
+</div>
+<hr>
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+// Add Firebase Configuration Code
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // DOM Elements
+        const loginSection = document.getElementById("login-section");
+        const protectedSection = document.getElementById("protected-section");
+        const txtEmail = document.getElementById("txtEmail");
+        const txtPassword = document.getElementById("txtPassword");
+        const btnLogin = document.getElementById("btnLogin");
+        const btnLogout = document.getElementById("btnLogout");
+
+        // Check Authentication State
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Show Protected Section
+                loginSection.style.display = "none";
+                protectedSection.style.display = "block";
+                console.log("Logged in as:", user.email);
+            } else {
+                // Show Login Section
+                loginSection.style.display = "block";
+                protectedSection.style.display = "none";
+                console.log("No user is logged in.");
+            }
+        });
+
+        // Handle Login
+        btnLogin.addEventListener("click", () => {
+            const email = txtEmail.value.trim();
+            const password = txtPassword.value.trim();
+
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    console.log("Login successful:", userCredential.user);
+                    alert("Login successful!");
+                })
+                .catch((error) => {
+                    console.error("Error logging in:", error.message);
+                    alert("Login failed: " + error.message);
+                });
+        });
+
+        // Handle Logout
+        btnLogout.addEventListener("click", () => {
+            signOut(auth)
+                .then(() => {
+                    console.log("User logged out.");
+                    alert("You have been logged out.");
+                })
+                .catch((error) => {
+                    console.error("Error logging out:", error.message);
+                    alert("Logout failed: " + error.message);
+                });
+        });
+    </script>
+<div class="footer">
+  <h3>Copyright 2024 by Refsnes Data. All Rights Reserved.</h3>
+</div>
+</body>
+</html>

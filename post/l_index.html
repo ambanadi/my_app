@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hello Arakan</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="Arakan Language Post">
+  <meta name="keywords" content="Arakan, Language, ArakanPost">
+  <meta name="author" content="Ambanadi">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="https://ambanadi.github.io/my_app/image/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@100;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://ambanadi.github.io/my_app/Css/index.css">
+<link rel="stylesheet" type="text/css" href="https://ambanadi.github.io/my_app/Css/login.css">
+</head>
+<body>
+
+<div class="header">
+  <h2>🔰ရခိုင်စာပီဆိုင်ရာ ဆောင်းပါးတိ🔰</h2>
+  <hr>
+</div>
+     <div id="login-section" style="display: none;">
+        <h1>Login</h1>
+        <input type="email" id="txtEmail" placeholder="Email">
+        <input type="password" id="txtPassword" placeholder="Password">
+        <button id="btnLogin">Login</button>
+    </div>
+
+<div class="row" id="protected-section">
+  <div class="leftcolumn">
+
+    <div class="card">
+      <p id="userDetail"></p>
+    </div>
+
+  </div>
+  <div class="rightcolumn">
+    <div class="card" id="userList"></div>
+    <button id="btnLogout">Logout</button>
+  </div>
+</div>
+<hr>
+     <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+// Add Firebase Configuration Code
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // DOM Elements
+        const loginSection = document.getElementById("login-section");
+        const protectedSection = document.getElementById("protected-section");
+        const txtEmail = document.getElementById("txtEmail");
+        const txtPassword = document.getElementById("txtPassword");
+        const btnLogin = document.getElementById("btnLogin");
+        const btnLogout = document.getElementById("btnLogout");
+
+        // Check Authentication State
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Show Protected Section
+                loginSection.style.display = "none";
+                protectedSection.style.display = "block";
+                console.log("Logged in as:", user.email);
+            } else {
+                // Show Login Section
+                loginSection.style.display = "block";
+                protectedSection.style.display = "none";
+                console.log("No user is logged in.");
+            }
+        });
+
+        // Handle Login
+        btnLogin.addEventListener("click", () => {
+            const email = txtEmail.value.trim();
+            const password = txtPassword.value.trim();
+
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    console.log("Login successful:", userCredential.user);
+                    alert("Login successful!");
+                })
+                .catch((error) => {
+                    console.error("Error logging in:", error.message);
+                    alert("Login failed: " + error.message);
+                });
+        });
+
+        // Handle Logout
+        btnLogout.addEventListener("click", () => {
+            signOut(auth)
+                .then(() => {
+                    console.log("User logged out.");
+                    alert("You have been logged out.");
+                })
+                .catch((error) => {
+                    console.error("Error logging out:", error.message);
+                    alert("Logout failed: " + error.message);
+                });
+        });
+    </script>
+<div class="footer">
+  <h3>Copyright 2024 by Refsnes Data. All Rights Reserved.</h3>
+</div>
+<hr>
+  <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+  <script type="text/javascript">
+    // Initialize Firebase
+var config = {
+// Add Firebase Configuration Code
+};
+
+firebase.initializeApp(config);
+
+
+const dbRef = firebase.database().ref();
+
+const usersRef = dbRef.child('language');
+const userListUI = document.getElementById("userList");
+
+usersRef.on("child_added", snap => {
+
+  let user = snap.val();
+
+  let $li = document.createElement("li");
+  $li.innerHTML = user.name;
+  $li.setAttribute("child-key", snap.key);
+  $li.addEventListener("click", userClicked)
+  userListUI.append($li);
+
+});
+
+
+function userClicked(e) {
+
+  var userID = e.target.getAttribute("child-key");
+
+  const userRef = dbRef.child('language/' + userID);
+  const userDetailUI = document.getElementById("userDetail");
+
+  userDetailUI.innerHTML = ""
+
+  userRef.on("child_added", snap => {
+
+
+    var $p = document.createElement("p");
+    $p.innerHTML = snap.key  + " - " +  snap.val()
+    userDetailUI.append($p);
+
+
+  });
+
+}
+
+
+
+  </script>
+</body>
+</html>
